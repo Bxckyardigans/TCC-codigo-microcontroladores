@@ -1,12 +1,12 @@
-#include <OneWire.h>
-#include <DallasTemperature.h>
+#include <OneWire.h> //dados por 1 fio
+#include <DallasTemperature.h> //sensor de temperatura
 #include <SPI.h>
-#include <RF24.h>
-#include <RF24Network.h>
-#include <TinyGPSPlus.h>
-#include <HardwareSerial.h>
-#include <LiquidCrystal_I2C.h>
-#include <SD.h>
+#include <RF24.h> // modulo radio
+#include <RF24Network.h> // modulo radio
+#include <TinyGPSPlus.h> // gps
+#include <HardwareSerial.h> 
+#include <LiquidCrystal_I2C.h> //display i2c
+#include <SD.h> // cartao sd
 
 // ======================= PINOS ===========================
 #define ONE_WIRE_BUS 15
@@ -16,6 +16,7 @@
 #define RELE_PELTIER 27
 #define RELE_VENTOINHA 26
 
+//cartao sd com pinos customizados
 #define SD_MOSI 33
 #define SD_MISO 34
 #define SD_SCK  25
@@ -59,23 +60,23 @@ bool sdDisponivel = false;
 
 // ======================= FUNÇÕES AUXILIARES =========================
 void carregarUltimaLocalizacao() {
-  if (!SD.exists("/ultima.txt")) {
+  if (!SD.exists("/ultima.txt")) { // se o arquivo não existir
     Serial.println("ℹ️ Nenhum arquivo de localização encontrado.");
     return;
   }
   File f = SD.open("/ultima.txt");
-  if (f) {
+  if (f) { //carrega ultima localização
     String latStr = f.readStringUntil(',');
     String lngStr = f.readStringUntil('\n');
     lastLat = latStr.toDouble();
     lastLng = lngStr.toDouble();
     f.close();
-    Serial.printf("📍 Última localização carregada: %.6f, %.6f\n", lastLat, lastLng);
+    Serial.printf("📍 Última localização carregada: %.6f, %.6f\n", lastLat, lastLng); 
   }
 }
 
 void salvarUltimaLocalizacao(double lat, double lng) {
-  if (!sdDisponivel) return;
+  if (!sdDisponivel) return; // se o cartão estiver disponivel
   File f = SD.open("/ultima.txt", FILE_WRITE);
   if (f) {
     f.printf("%.6f,%.6f\n", lat, lng);
@@ -83,7 +84,7 @@ void salvarUltimaLocalizacao(double lat, double lng) {
   }
 }
 
-void salvarRegistroSD(float temp, double lat, double lng, bool refrig, bool venti) {
+void salvarRegistroSD(float temp, double lat, double lng, bool refrig, bool venti) { //salva tudo no log.csv
   if (!sdDisponivel) return;
   File log = SD.open("/log.csv", FILE_APPEND);
   if (log) {
@@ -121,8 +122,9 @@ bool inicializarSD() {
     return false;
   }
 
+  //identificação do tipo do cartão
   Serial.print("📀 Tipo: ");
-  switch (cardType) {
+  switch (cardType) { 
     case CARD_MMC: Serial.println("MMC"); break;
     case CARD_SD: Serial.println("SDSC"); break;
     case CARD_SDHC: Serial.println("SDHC"); break;
