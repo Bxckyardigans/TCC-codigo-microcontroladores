@@ -9,13 +9,13 @@
 #include <ESPmDNS.h>
 #include <NetworkClient.h>
 
-WebServer server(80);
+WebServer server(80); 
 
 // ===== NRF24 =====
 RF24 radio(4, 5);
-RF24Network network(radio);
+RF24Network network(radio); //inicia o modulo de radio
 
-const uint16_t Master = 00;
+const uint16_t Master = 00; //define mestre e escravo
 const uint16_t Slave  = 01;
 
 // ===== Estrutura dos dados recebidos =====
@@ -30,7 +30,7 @@ Payload datos;
 // ===== LCD =====
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-// ===== Alerta =====
+// ===== variaveis =====
 #define BUZZER_PIN    17
 #define LED_VERDE     15
 #define LED_VERMELHO  2
@@ -56,7 +56,7 @@ void setup() {
   WiFi.mode(WIFI_STA);
   SPI.begin();
 
-  // ===== Inicializa LEDs e buzzer =====
+  // ===== Declara LEDs e buzzer =====
   pinMode(LED_VERDE, OUTPUT);
   pinMode(LED_VERMELHO, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
@@ -70,13 +70,13 @@ void setup() {
     Serial.println("✅ NRF24L01 inicializado com sucesso!");
   }
 
-  network.begin(90, Slave);
-  radio.setDataRate(RF24_2MBPS);
+  network.begin(90, Slave); //define como escravo
+  radio.setDataRate(RF24_2MBPS); //define frequencia e camada que o modulo vai trabalhar
   radio.setPALevel(RF24_PA_MAX);
 
   // ===== WiFi Manager =====
   WiFiManager wm;
-  bool res = wm.autoConnect("ColdRemote", "monovac123");
+  bool res = wm.autoConnect("ColdRemote", "monovac123"); //inicia o ap se não conectar em um wifi
 
   lcd.init();
   lcd.backlight();
@@ -101,7 +101,7 @@ void setup() {
   // ===== Web Server =====
 
   // ===== Configurações WiFi =====
-if (!MDNS.begin("ColdRemote")) {
+if (!MDNS.begin("ColdRemote")) { //define o dns
     Serial.println("Error setting up MDNS responder!");
     while (1) {
       delay(1000);
@@ -109,6 +109,7 @@ if (!MDNS.begin("ColdRemote")) {
   }
   Serial.println("mDNS responder started");
 
+  //cria o arquivo de dados(coldremote.local/datos)
   server.on("/dados", []() {
     String json = "{";
     json += "\"temperatura\":" + String(datos.temperatura, 2) + ",";
@@ -119,11 +120,11 @@ if (!MDNS.begin("ColdRemote")) {
     server.send(200, "application/json", json);
   });
 
-  // Start TCP (HTTP) server
+  // inicia o TCP (HTTP) server
   Serial.println("TCP server started");
   server.begin();
 
-  // Add service to MDNS-SD
+  // adiciona o MDNS-SD
   MDNS.addService("http", "tcp", 80);
 
   lcd.setCursor(0, 1);
