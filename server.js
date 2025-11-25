@@ -51,7 +51,7 @@ async function salvarNoBanco(dados) {
 //busca os dados anteriores no banco
 async function buscarNoBanco() {
   try{
-  const [rows] = await  db.query("SELECT temperatura, latitude, longitude, recebido_em FROM registros_vacinas")
+  const [rows] = await  db.query("SELECT temperatura, latitude, longitude, recebido_em FROM registros_vacinas ORDER BY recebido_em DESC")
   console.log(rows)
   return [rows]}catch(error){console.log(error)}
 }
